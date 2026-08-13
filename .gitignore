@@ -8,7 +8,7 @@ build/
 # .gitignore 파일 내부
 .env
 config.json
-application-secret.yml
+application-secret.properties
 
 ### STS ###
 .apt_generated
