@@ -4,7 +4,11 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-application.properties
+
+# .gitignore 파일 내부
+.env
+config.json
+application-secret.yml
 
 ### STS ###
 .apt_generated
