@@ -96,7 +96,7 @@ public class Controller {
                 "Tylenol", "Advil", "Aleve", "Zyrtec", "Claritin", "Benadryl",
                 "Pepto-Bismol", "Tums", "Imodium", "Sudafed", "Mucinex",
                 "Motrin", "Excedrin", "Allegra", "Flonase", "Gas-X",
-                "Pepcid", "Dulcolax", "DayQuil", "Robitussin", "Vicks"
+                "Pepcid", "Dulcolax", "DayQuil", "Robitussin Cough", "Theraflu"
         };
         for (String medication : usMedications) {
             usMedicationSyncService.syncOne(medication);

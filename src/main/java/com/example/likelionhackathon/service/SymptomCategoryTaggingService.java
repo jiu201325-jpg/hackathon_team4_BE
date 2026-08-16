@@ -53,8 +53,8 @@ public class SymptomCategoryTaggingService {
         tag("Sudafed", "감기");
         tag("Mucinex", "감기");
         tag("DayQuil", "감기");
-        tag("Robitussin", "감기");
-        tag("Vicks", "감기");
+        tag("Robitussin Cough", "감기");
+        tag("Theraflu", "감기");
     }
 
     private void tag(String medicationNameKeyword, String... categoryNames) {

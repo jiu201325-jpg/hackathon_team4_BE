@@ -7,7 +7,9 @@ import com.example.likelionhackathon.entity.USMedication;
 import com.example.likelionhackathon.repository.IngredientRepository;
 import com.example.likelionhackathon.repository.SymptomCategoryRepository;
 import com.example.likelionhackathon.repository.USMedicationRepository;
+import com.example.likelionhackathon.util.IngredientNameNormalizer;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -15,6 +17,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -35,20 +38,34 @@ public class USMedicationSyncService {
 
     public void syncOne(String brandName) {
         String encodedQuery = URLEncoder.encode("openfda.brand_name:\"" + brandName + "\"", StandardCharsets.UTF_8);
-        String urlString = "https://api.fda.gov/drug/label.json?search=" + encodedQuery + "&limit=5";
+        String urlString = "https://api.fda.gov/drug/label.json?search=" + encodedQuery + "&limit=10";
 
         URI uri = URI.create(urlString);
 
-        OpenFdaResponse response = restTemplate.getForObject(uri, OpenFdaResponse.class);
+        OpenFdaResponse response;
+        try {
+            response = restTemplate.getForObject(uri, OpenFdaResponse.class);
+        } catch (HttpClientErrorException.NotFound e) {
+            System.out.println("=== openFDA에서 404 (검색결과 없음), 스킵: " + brandName);
+            return;
+        }
+
         if (response == null || response.getResults() == null || response.getResults().isEmpty()) {
             System.out.println("=== openFDA 결과 없음: " + brandName);
             return;
         }
 
+        // ↓↓↓ 이 부분이 빠져있던 것 같아 — result를 만드는 로직
         OpenFdaResponse.Result result = response.getResults().stream()
                 .filter(r -> r.getOpenfda() != null && r.getOpenfda().getSubstanceName() != null)
+                .filter(r -> r.getOpenfda().getBrandName() != null &&
+                        r.getOpenfda().getBrandName().stream()
+                                .anyMatch(b -> b.equalsIgnoreCase(brandName)))
                 .findFirst()
-                .orElse(null);
+                .orElseGet(() -> response.getResults().stream()
+                        .filter(r -> r.getOpenfda() != null && r.getOpenfda().getSubstanceName() != null)
+                        .min(Comparator.comparingInt(r -> r.getOpenfda().getSubstanceName().size()))
+                        .orElse(null));
 
         if (result == null) {
             System.out.println("=== substance_name 있는 결과 없음: " + brandName);
@@ -63,13 +80,12 @@ public class USMedicationSyncService {
             return;
         }
 
-        // 1. 성분(Ingredient) 세팅
         List<String> substanceNames = result.getOpenfda().getSubstanceName();
         System.out.println("=== " + brandName + " → 성분: " + substanceNames);
 
         List<Ingredient> ingredientList = new ArrayList<>();
         for (String substanceName : substanceNames) {
-            String normalizedName = capitalizeFirst(substanceName.toLowerCase());
+            String normalizedName = IngredientNameNormalizer.normalize(substanceName);
 
             Ingredient ingredient = ingredientRepository.findByNameEn(normalizedName)
                     .orElseGet(() -> {
@@ -80,29 +96,15 @@ public class USMedicationSyncService {
             ingredientList.add(ingredient);
         }
 
-        // 2. 약(Medication) 객체 생성 및 기본 정보 세팅
         USMedication medication = new USMedication();
         medication.setName(resolvedName);
         medication.setManufacturer(result.getOpenfda().getManufacturerName() != null
                 ? String.join(", ", result.getOpenfda().getManufacturerName()) : null);
-
-        String efficacyText = result.getIndicationsAndUsage() != null
-                ? String.join(" ", result.getIndicationsAndUsage()) : null;
-        medication.setEfficacyText(efficacyText);
+        medication.setEfficacyText(result.getIndicationsAndUsage() != null
+                ? String.join(" ", result.getIndicationsAndUsage()) : null);
         medication.setIngredients(ingredientList);
         medication.setLastVerifiedAt(LocalDate.now());
 
-        // 3. 효능 텍스트 기반 카테고리 분류 및 세팅
-        List<SymptomCategory> mappedCategories = extractCategoriesFromEfficacy(efficacyText);
-
-        // --- [디버깅 로그] ---
-        System.out.println("=== 디버깅: 약 이름 = " + resolvedName);
-        System.out.println("=== 디버깅: 원본 효능 텍스트 = " + efficacyText);
-        System.out.println("=== 디버깅: 매핑된 카테고리 개수 = " + mappedCategories.size());
-
-        medication.setCategories(mappedCategories);
-
-        // 4. 최종 저장
         usMedicationRepository.save(medication);
     }
 
