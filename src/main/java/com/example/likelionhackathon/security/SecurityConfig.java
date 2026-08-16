@@ -1,6 +1,7 @@
 package com.example.likelionhackathon.security;
 
 import jakarta.servlet.DispatcherType;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,6 +34,12 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                // 토큰이 없을 경우, 401 에러로 변환
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                        )
+                )
 
                 .authorizeHttpRequests(auth -> auth
 
@@ -45,7 +52,16 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/medications/korean",
                                 "/api/symptom-categories",
-                                "/error"
+                                "/error",                                "/init-all",
+                                "/init-categories",
+                                "/enrich-ingredients",
+                                "/test-sync",
+                                "/test-sync-us",
+                                "/test-sync-us-batch",
+                                "/test-sync-kr-batch",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
                         ).permitAll()
 
                         // 나머지는 JWT 인증 필요

@@ -2,11 +2,11 @@ package com.example.likelionhackathon.controller;
 
 import com.example.likelionhackathon.dto.MatchRequest;
 import com.example.likelionhackathon.dto.MatchResponse;
+import com.example.likelionhackathon.repository.KoreanMedicationRepository;
 import com.example.likelionhackathon.service.*;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class Controller {
@@ -109,5 +109,21 @@ public class Controller {
         ingredientEnrichmentService.enrichAll();
 
         return "전체 초기화 완료 (한국약+미국약+카테고리+CUI/ATC)";
+    }
+
+    @RestController
+    @RequestMapping("/api/medications")
+    public class MedicationController {
+
+        private final KoreanMedicationRepository koreanMedicationRepository;
+
+        public MedicationController(KoreanMedicationRepository koreanMedicationRepository) {
+            this.koreanMedicationRepository = koreanMedicationRepository;
+        }
+
+        @GetMapping("/korean")
+        public List<?> searchKorean(@RequestParam String query) {
+            return koreanMedicationRepository.findByNameContaining(query);
+        }
     }
 }
