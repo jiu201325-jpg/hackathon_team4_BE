@@ -4,7 +4,9 @@ import com.example.likelionhackathon.dto.PharmacistCardRequest;
 import com.example.likelionhackathon.dto.UserAllergyResponse;
 import com.example.likelionhackathon.dto.UserMedicationResponse;
 import com.example.likelionhackathon.entity.User;
+import com.example.likelionhackathon.entity.USMedication;
 import com.example.likelionhackathon.repository.UserRepository;
+import com.example.likelionhackathon.repository.USMedicationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ public class PharmacistCardService {
     private final UserRepository userRepository;
     private final UserAllergyService userAllergyService;
     private final UserMedicationService userMedicationService;
+    private final USMedicationRepository usMedicationRepository;
 
     @Transactional(readOnly = true)
     public String createCard(
@@ -35,6 +38,14 @@ public class PharmacistCardService {
         List<UserMedicationResponse> medications =
                 userMedicationService.getMedications(username);
 
+        // 매칭된 미국약 조회
+        List<USMedication> usMedications =
+                request.getUsMedicationIds() == null
+                        ? List.of()
+                        : usMedicationRepository.findAllById(
+                        request.getUsMedicationIds()
+                );
+
         StringBuilder card = new StringBuilder();
 
         card.append("Hello, I am a traveler from Korea.\n\n");
@@ -46,13 +57,28 @@ public class PharmacistCardService {
                         : request.getSymptom())
                 .append("\n\n");
 
-        // 복용 중인 약
+        // 현재 복용 중인 한국 약
         card.append("Medications I am currently taking:\n");
 
         if (medications.isEmpty()) {
             card.append("- None reported\n");
         } else {
             for (UserMedicationResponse medication : medications) {
+                card.append("- ")
+                        .append(medication.getName())
+                        .append("\n");
+            }
+        }
+
+        card.append("\n");
+
+        // 한국 약과 매칭된 미국 약
+        card.append("Matched U.S. medications:\n");
+
+        if (usMedications.isEmpty()) {
+            card.append("- None reported\n");
+        } else {
+            for (USMedication medication : usMedications) {
                 card.append("- ")
                         .append(medication.getName())
                         .append("\n");
