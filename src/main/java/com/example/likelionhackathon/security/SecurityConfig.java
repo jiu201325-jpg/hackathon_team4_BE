@@ -31,6 +31,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
 
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -52,16 +54,11 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/medications/korean",
                                 "/api/symptom-categories",
-                                "/error",                                "/init-all",
-                                "/init-categories",
-                                "/enrich-ingredients",
-                                "/test-sync",
-                                "/test-sync-us",
-                                "/test-sync-us-batch",
-                                "/test-sync-kr-batch",
+                                "/error",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/h2-console/**"
                         ).permitAll()
 
                         // 나머지는 JWT 인증 필요

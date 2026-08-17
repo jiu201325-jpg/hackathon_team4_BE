@@ -5,7 +5,9 @@ import com.example.likelionhackathon.entity.Ingredient;
 import com.example.likelionhackathon.entity.KoreanMedication;
 import com.example.likelionhackathon.entity.USMedication;
 import com.example.likelionhackathon.repository.KoreanMedicationRepository;
+import com.example.likelionhackathon.repository.SymptomCategoryRepository;
 import com.example.likelionhackathon.repository.USMedicationRepository;
+import com.example.likelionhackathon.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -16,15 +18,27 @@ public class MatchService {
 
     private final KoreanMedicationRepository koreanMedicationRepository;
     private final USMedicationRepository usMedicationRepository;
+    private final SymptomCategoryRepository symptomCategoryRepository;
 
     public MatchService(KoreanMedicationRepository koreanMedicationRepository,
-                        USMedicationRepository usMedicationRepository) {
+                        USMedicationRepository usMedicationRepository,
+                        SymptomCategoryRepository symptomCategoryRepository) {
         this.koreanMedicationRepository = koreanMedicationRepository;
         this.usMedicationRepository = usMedicationRepository;
+        this.symptomCategoryRepository = symptomCategoryRepository;
     }
 
     public MatchResponse compare(MatchRequest request) {
         List<KoreanMedication> koreanMeds = koreanMedicationRepository.findAllById(request.getKoreanMedicationIds());
+
+        // 요청한 개수와 실제로 찾은 개수가 다르면 = 존재하지 않는 ID가 섞임
+        if (koreanMeds.size() != request.getKoreanMedicationIds().size()) {
+            throw new IllegalArgumentException("존재하지 않는 한국 약 ID가 포함되어 있습니다.");
+        }
+
+        if (!symptomCategoryRepository.existsById(request.getSymptomCategoryId())) {
+            throw new IllegalArgumentException("존재하지 않는 증상 카테고리입니다.");
+        }
 
         Set<Ingredient> koreanIngredients = koreanMeds.stream()
                 .flatMap(m -> m.getIngredients().stream())
