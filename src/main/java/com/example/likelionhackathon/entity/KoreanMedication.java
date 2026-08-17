@@ -10,6 +10,9 @@ public class KoreanMedication {
 
     private String name;
 
+    private String source;
+
+
     @ManyToMany
     private List<Ingredient> ingredients;
 
@@ -21,4 +24,9 @@ public class KoreanMedication {
 
     public List<Ingredient> getIngredients() { return ingredients; }
     public void setIngredients(List<Ingredient> ingredients) { this.ingredients = ingredients; }
+
+    public String getSource() { return source; }
+
+    public void setSource(String source) { this.source = source; }
+
 }
