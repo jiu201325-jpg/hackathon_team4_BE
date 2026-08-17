@@ -1,12 +1,16 @@
 package com.example.likelionhackathon.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class PharmacistCardRequest {
 
     @JsonProperty("korean_medication_ids")
     private List<Long> koreanMedicationIds;
+
+    @JsonProperty("us_medication_ids")
+    private List<Long> usMedicationIds;
 
     @JsonProperty("symptom_category_id")
     private Long symptomCategoryId;
@@ -22,6 +26,14 @@ public class PharmacistCardRequest {
 
     public void setKoreanMedicationIds(List<Long> koreanMedicationIds) {
         this.koreanMedicationIds = koreanMedicationIds;
+    }
+
+    public List<Long> getUsMedicationIds() {
+        return usMedicationIds;
+    }
+
+    public void setUsMedicationIds(List<Long> usMedicationIds) {
+        this.usMedicationIds = usMedicationIds;
     }
 
     public Long getSymptomCategoryId() {
