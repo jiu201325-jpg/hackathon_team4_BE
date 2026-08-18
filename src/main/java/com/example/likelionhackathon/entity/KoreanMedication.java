@@ -2,6 +2,7 @@ package com.example.likelionhackathon.entity;
 
 import jakarta.persistence.*;
 import java.util.List;
+import java.time.LocalDate;
 
 @Entity
 public class KoreanMedication {
@@ -11,6 +12,10 @@ public class KoreanMedication {
     private String name;
 
     private String source;
+
+    private LocalDate lastVerifiedAt;
+
+
 
 
     @ManyToMany
@@ -26,7 +31,10 @@ public class KoreanMedication {
     public void setIngredients(List<Ingredient> ingredients) { this.ingredients = ingredients; }
 
     public String getSource() { return source; }
-
     public void setSource(String source) { this.source = source; }
+
+    public LocalDate getLastVerifiedAt() { return lastVerifiedAt; }
+
+    public void setLastVerifiedAt(LocalDate lastVerifiedAt) { this.lastVerifiedAt = lastVerifiedAt; }
 
 }

@@ -9,12 +9,15 @@ import com.example.likelionhackathon.util.IngredientNameNormalizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import java.time.LocalDate;
 
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+
+import java.time.LocalDate;
 
 @Service
 public class KoreanMedicationSyncService {
@@ -76,6 +79,7 @@ public class KoreanMedicationSyncService {
             medication.setName(item.getItemName());
             medication.setSource("식약처");
             medication.setIngredients(ingredientList);
+            medication.setLastVerifiedAt(LocalDate.now());
             koreanMedicationRepository.save(medication);
         }
     }
