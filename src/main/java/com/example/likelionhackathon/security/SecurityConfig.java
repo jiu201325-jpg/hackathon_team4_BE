@@ -81,7 +81,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:3000"));
+        // 프론트엔드 개발 서버(Vite 5173)와 배포 주소(Vercel)를 허용한다.
+        // setAllowedOriginPatterns 를 쓰면 Vercel 의 프리뷰 주소도 함께 통과한다.
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://localhost:4173",
+                "https://medipass-kappa.vercel.app",
+                "https://*.vercel.app"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
