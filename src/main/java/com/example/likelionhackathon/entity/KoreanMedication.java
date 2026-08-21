@@ -9,6 +9,7 @@ public class KoreanMedication {
     private Long id;
 
     private String name;
+    private String manufacturer;
 
     @ManyToMany
     private List<Ingredient> ingredients;
@@ -18,6 +19,9 @@ public class KoreanMedication {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+
+    public String getManufacturer() { return manufacturer; }
+    public void setManufacturer(String manufacturer) { this.manufacturer = manufacturer; }
 
     public List<Ingredient> getIngredients() { return ingredients; }
     public void setIngredients(List<Ingredient> ingredients) { this.ingredients = ingredients; }

@@ -23,6 +23,8 @@ public class MfdsPrdtPrmsnResponse {
         private String itemIngrName;
         @JsonProperty("ITEM_INGR_CNT")
         private String itemIngrCnt;
+        @JsonProperty("ENTP_NAME")
+        private String entpName;
 
         public String getItemName() { return itemName; }
         public void setItemName(String itemName) { this.itemName = itemName; }
@@ -32,5 +34,7 @@ public class MfdsPrdtPrmsnResponse {
         public void setItemIngrName(String itemIngrName) { this.itemIngrName = itemIngrName; }
         public String getItemIngrCnt() { return itemIngrCnt; }
         public void setItemIngrCnt(String itemIngrCnt) { this.itemIngrCnt = itemIngrCnt; }
+        public String getEntpName() { return entpName; }
+        public void setEntpName(String entpName) { this.entpName = entpName; }
     }
 }

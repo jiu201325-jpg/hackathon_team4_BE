@@ -74,6 +74,7 @@ public class KoreanMedicationSyncService {
 
             KoreanMedication medication = new KoreanMedication();
             medication.setName(item.getItemName());
+            medication.setManufacturer(item.getEntpName());
             medication.setIngredients(ingredientList);
             koreanMedicationRepository.save(medication);
         }
